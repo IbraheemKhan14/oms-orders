@@ -7,6 +7,10 @@ import com.oms.orders.enums.OrderStatus;
 import com.oms.orders.repository.OrderRepository;
 import feign.FeignException;
 import lombok.RequiredArgsConstructor;
+import org.springframework.data.domain.Page;
+import org.springframework.data.domain.PageRequest;
+import org.springframework.data.domain.Pageable;
+import org.springframework.data.domain.Sort;
 import org.springframework.stereotype.Service;
 
 import java.time.Instant;
@@ -129,5 +133,18 @@ public class OrderService {
             throw new IllegalArgumentException("Unsupported status: " + raw
                     + ". Allowed values: " + Arrays.toString(OrderStatus.values()));
         }
+    }
+
+    public Map<String, Object> getAllOrders(int page, int size) {
+        Pageable pageable = PageRequest.of(page, size, Sort.by(Sort.Direction.DESC, "createdAt"));
+        Page<Order> orderPage = orderRepository.findAll(pageable);
+
+        Map<String, Object> response = new HashMap<>();
+        response.put("items", orderPage.getContent());
+        response.put("currentPage", orderPage.getNumber());
+        response.put("totalItems", orderPage.getTotalElements());
+        response.put("totalPages", orderPage.getTotalPages());
+
+        return response;
     }
 }

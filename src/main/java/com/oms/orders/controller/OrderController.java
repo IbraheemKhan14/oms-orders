@@ -48,6 +48,19 @@ public class OrderController {
         }
     }
 
+    @GetMapping
+    public ResponseEntity<?> getAllOrders(
+            @RequestParam(defaultValue = "0") int page,
+            @RequestParam(defaultValue = "10") int size) {
+        try {
+            Map<String, Object> result = orderService.getAllOrders(page, size);
+            return ResponseEntity.ok(ApiResponse.ok(result));
+        } catch (Exception ex) {
+            return ResponseEntity.status(HttpStatus.INTERNAL_SERVER_ERROR)
+                    .body(ApiErrorResponse.of("FETCH_FAILED", ex.getMessage()));
+        }
+    }
+
     @GetMapping("/{orderId}")
     public ResponseEntity<?> getOrder(@PathVariable String orderId) {
         Optional<Order> order = orderRepository.findById(orderId);
